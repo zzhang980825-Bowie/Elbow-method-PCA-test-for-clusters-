@@ -1,0 +1,168 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+
+# Load the two datasets
+data1 = pd.read_csv
+data2 = pd.read_csv
+
+data1_numeric = data1.select_dtypes(include=['number'])
+data2_numeric = data2.select_dtypes(include=['number'])
+
+# Fill NaN values with 0
+data1_numeric = data1_numeric.fillna(0)
+data2_numeric = data2_numeric.fillna(0)
+
+# Standardize the data
+scaler = StandardScaler()
+data1_scaled = scaler.fit_transform(data1_numeric)
+data2_scaled = scaler.fit_transform(data2_numeric)
+
+# Perform PCA to reduce dimensionality
+pca = PCA(n_components=2)
+data1_pca = pca.fit_transform(data1_scaled)
+data2_pca = pca.fit_transform(data2_scaled)
+
+# Perform clustering
+kmeans = KMeans(n_clusters=2, random_state=0)
+cluster_labels_data1 = kmeans.fit_predict(data1_scaled)
+cluster_labels_data2 = kmeans.fit_predict(data2_scaled)
+
+# Assign cluster labels back to the original datasets
+data1['Cluster'] = cluster_labels_data1
+data2['Cluster'] = cluster_labels_data2
+
+# Plot the clustering results for data1
+plt.figure(figsize=(12, 6))
+plt.subplot(1, 2, 1)
+plt.scatter(data1_pca[:, 0], data1_pca[:, 1], c=cluster_labels_data1, cmap='viridis')
+plt.title('Clustering Results for Bid revised')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.colorbar()
+
+# Plot the clustering results for data2
+plt.subplot(1, 2, 2)
+plt.scatter(data2_pca[:, 0], data2_pca[:, 1], c=cluster_labels_data2, cmap='viridis')
+plt.title('Clustering Results for Bid Original Data')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.colorbar()
+
+plt.tight_layout()
+plt.show()
+
+
+# Assuming 'data1' and 'data2' are your original DataFrames
+# Filter data1 by cluster labels
+data1_cluster0 = data1[data1['Cluster'] == 0]
+data1_cluster1 = data1[data1['Cluster'] == 1]
+
+# Filter data2 by cluster labels
+data2_cluster0 = data2[data2['Cluster'] == 0]
+data2_cluster1 = data2[data2['Cluster'] == 1]
+
+# Print the specific data in each cluster
+print("Data in Cluster 0 for Data1:")
+print(data1_cluster0)
+
+print("\nData in Cluster 1 for Data1:")
+print(data1_cluster1)
+
+print("\nData in Cluster 0 for Data2:")
+print(data2_cluster0)
+
+print("\nData in Cluster 1 for Data2:")
+print(data2_cluster1)
+
+pca = PCA(n_components=2)
+data1_pca = pca.fit_transform(data1_scaled)
+data2_pca = pca.fit_transform(data2_scaled)
+
+print('Explained variation per principal component for data1: {}'.format(pca.explained_variance_ratio_))
+print('Cumulative variance explained by 2 principal components for data1: {:.2%}'.format(np.sum(pca.explained_variance_ratio_)))
+
+print('Explained variation per principal component for data2: {}'.format(pca.explained_variance_ratio_))
+print('Cumulative variance explained by 2 principal components for data2: {:.2%}'.format(np.sum(pca.explained_variance_ratio_)))
+
+
+
+# Assuming df1 is your dataset
+df1_numeric = data1.select_dtypes(include=['number'])
+
+# Fill NaN values with 0
+df1_numeric = data1_numeric.fillna(0)
+
+# Standardize the data
+scaler = StandardScaler()
+df1_scaled = scaler.fit_transform(df1_numeric)
+
+# Perform PCA to reduce dimensionality
+pca = PCA(n_components=2)
+df1_pca = pca.fit_transform(df1_scaled)
+
+# Define a range of cluster numbers to try
+parameters = {'n_clusters': range(2, 11)}  # Trying clusters from 2 to 10
+
+parameter_grid = ParameterGrid(parameters)
+best_score = -1
+kmeans_model = KMeans()     # Instantiate KMeans model
+silhouette_scores = []
+
+# Evaluation based on silhouette_score
+for p in parameter_grid:
+    kmeans_model.set_params(**p)    # Set current hyperparameters
+    kmeans_model.fit(df1_scaled)    # Fit model on df1
+    ss = metrics.silhouette_score(df1_scaled, kmeans_model.labels_)   # Calculate silhouette_score
+    silhouette_scores.append(ss)    # Store all the scores
+    print('Parameter:', p, 'Score:', ss)
+    # Check which hyperparameters have the best score
+    if ss > best_score:
+        best_score = ss
+        best_grid = p
+
+# Plotting silhouette score
+plt.bar(range(len(silhouette_scores)), silhouette_scores, align='center', color='#722f59', width=0.5)
+plt.xticks(range(len(silhouette_scores)), list(parameters['n_clusters']))
+plt.title('Silhouette Score', fontweight='bold')
+plt.xlabel('Number of Clusters')
+plt.ylabel('Silhouette Score')
+plt.show()
+
+# Print the best hyperparameters and corresponding silhouette score
+print('Best Hyperparameters:', best_grid)
+print('Best Silhouette Score:', best_score)
+
+pc1 = pca.components_[0]  # First principal component (PC1)
+pc2 = pca.components_[1]  # Second principal component (PC2)
+
+# You can also get the feature names for reference
+feature_names = data1_numeric.columns  # Assuming data1_numeric is your original DataFrame
+
+# Create a DataFrame to display the components with their corresponding feature names
+components_df = pd.DataFrame({'PC1': pc1, 'PC2': pc2}, index=feature_names)
+
+# Display the components
+print(components_df)
+
+data_numeric = data.select_dtypes(include=['number'])
+
+# Fill NaN values with 0
+data_numeric = data_numeric.fillna(0)
+
+# Standardize the data
+scaler = StandardScaler()
+data_scaled = scaler.fit_transform(data_numeric)
+
+# Perform PCA to reduce dimensionality
+pca = PCA(n_components=2)
+data_pca = pca.fit_transform(data_scaled)
+
+# Extract the dataset along the second principal component (PC2)
+pc2_dataset = pd.DataFrame(data=data_pca[:, 1], columns=['PC2'])
+
+# Display the dataset along PC2
+print(pc2_dataset)
+
